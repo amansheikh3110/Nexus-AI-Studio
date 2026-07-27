@@ -15,10 +15,18 @@ const app = express();
 app.use(cors());
 app.use(express.json());
 
-// MongoDB connection
-mongoose.connect(process.env.MONGO_URI || 'mongodb://localhost:27017/ai_chat_dashboard')
-  .then(() => console.log('MongoDB connected'))
-  .catch(err => console.error('MongoDB connection error:', err));
+// Serverless MongoDB connection pool helper
+let cachedDb = null;
+const connectDB = async () => {
+  if (cachedDb && mongoose.connection.readyState === 1) {
+    return cachedDb;
+  }
+  const mongoUri = process.env.MONGO_URI || 'mongodb://localhost:27017/ai_chat_dashboard';
+  cachedDb = await mongoose.connect(mongoUri, {
+    serverSelectionTimeoutMS: 5000,
+  });
+  return cachedDb;
+};
 
 // OpenRouter API setup
 const openai = new OpenAI({
@@ -29,7 +37,10 @@ const openai = new OpenAI({
 // --- Auth Routes ---
 app.post('/api/auth/register', async (req, res) => {
   try {
+    await connectDB();
     const { username, password } = req.body;
+    if (!username || !password) return res.status(400).json({ error: 'Username and password are required' });
+    
     let user = await User.findOne({ username });
     if (user) return res.status(400).json({ error: 'User already exists' });
     
@@ -42,13 +53,17 @@ app.post('/api/auth/register', async (req, res) => {
     const token = jwt.sign({ userId: user._id }, process.env.JWT_SECRET || 'secret123', { expiresIn: '7d' });
     res.json({ token, username });
   } catch (err) {
-    res.status(500).json({ error: 'Server error' });
+    console.error('Register Error:', err);
+    res.status(500).json({ error: err.message || 'Server error' });
   }
 });
 
 app.post('/api/auth/login', async (req, res) => {
   try {
+    await connectDB();
     const { username, password } = req.body;
+    if (!username || !password) return res.status(400).json({ error: 'Username and password are required' });
+
     const user = await User.findOne({ username });
     if (!user) return res.status(400).json({ error: 'Invalid credentials' });
     
@@ -58,22 +73,25 @@ app.post('/api/auth/login', async (req, res) => {
     const token = jwt.sign({ userId: user._id }, process.env.JWT_SECRET || 'secret123', { expiresIn: '7d' });
     res.json({ token, username });
   } catch (err) {
-    res.status(500).json({ error: 'Server error' });
+    console.error('Login Error:', err);
+    res.status(500).json({ error: err.message || 'Server error' });
   }
 });
 
 // --- Chat Routes ---
 app.get('/api/chats', authMiddleware, async (req, res) => {
   try {
+    await connectDB();
     const chats = await Chat.find({ userId: req.user }).select('title createdAt').sort({ createdAt: -1 });
     res.json(chats);
   } catch (err) {
-    res.status(500).json({ error: 'Server error' });
+    res.status(500).json({ error: err.message || 'Server error' });
   }
 });
 
 app.post('/api/chats', authMiddleware, async (req, res) => {
   try {
+    await connectDB();
     const newChat = new Chat({
       userId: req.user,
       title: 'New Chat',
@@ -82,33 +100,36 @@ app.post('/api/chats', authMiddleware, async (req, res) => {
     await newChat.save();
     res.json(newChat);
   } catch (err) {
-    res.status(500).json({ error: 'Server error' });
+    res.status(500).json({ error: err.message || 'Server error' });
   }
 });
 
 app.get('/api/chats/:id', authMiddleware, async (req, res) => {
   try {
+    await connectDB();
     const chat = await Chat.findOne({ _id: req.params.id, userId: req.user });
     if (!chat) return res.status(404).json({ error: 'Chat not found' });
     res.json(chat);
   } catch (err) {
-    res.status(500).json({ error: 'Server error' });
+    res.status(500).json({ error: err.message || 'Server error' });
   }
 });
 
 app.delete('/api/chats/:id', authMiddleware, async (req, res) => {
   try {
+    await connectDB();
     const chat = await Chat.findOneAndDelete({ _id: req.params.id, userId: req.user });
     if (!chat) return res.status(404).json({ error: 'Chat not found' });
     res.json({ message: 'Chat deleted' });
   } catch (err) {
-    res.status(500).json({ error: 'Server error' });
+    res.status(500).json({ error: err.message || 'Server error' });
   }
 });
 
 // OpenRouter Chat Completion Route
 app.post('/api/chats/:id/message', authMiddleware, async (req, res) => {
   try {
+    await connectDB();
     const { message, model, persona } = req.body;
     const chat = await Chat.findOne({ _id: req.params.id, userId: req.user });
     if (!chat) return res.status(404).json({ error: 'Chat not found' });
@@ -188,7 +209,7 @@ app.post('/api/chats/:id/message', authMiddleware, async (req, res) => {
   } catch (err) {
     console.error(err);
     if (!res.headersSent) {
-       res.status(500).json({ error: 'AI API error' });
+       res.status(500).json({ error: err.message || 'AI API error' });
     } else {
        res.end();
     }
@@ -196,17 +217,23 @@ app.post('/api/chats/:id/message', authMiddleware, async (req, res) => {
 });
 
 // Health check endpoint
-app.get('/api/health', (req, res) => {
+app.get('/api/health', async (req, res) => {
+  let mongoStatus = 'disconnected';
+  try {
+    await connectDB();
+    mongoStatus = mongoose.connection.readyState === 1 ? 'connected' : 'disconnected';
+  } catch (err) {
+    mongoStatus = err.message;
+  }
   res.json({
     status: 'ok',
-    mongo: mongoose.connection.readyState === 1 ? 'connected' : 'disconnected',
+    mongo: mongoStatus,
     timestamp: new Date().toISOString()
   });
 });
 
 const PORT = process.env.PORT || 8000;
 
-// Only start the HTTP server when running directly (not when imported by Vercel)
 if (require.main === module) {
   app.listen(PORT, () => console.log(`Server running on port ${PORT}`));
 }
