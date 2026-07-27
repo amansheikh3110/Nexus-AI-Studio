@@ -29,6 +29,9 @@ yarn-error.log*
 
 # Temporary & Debug Files
 temp.txt
+*.txt
+*.docx
+FullStack_AI_Developer_Task_Brief.docx
 frontend/temp.txt
 frontend/dom*.html
 frontend/dump_*.js
