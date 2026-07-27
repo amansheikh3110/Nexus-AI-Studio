@@ -195,8 +195,20 @@ app.post('/api/chats/:id/message', authMiddleware, async (req, res) => {
   }
 });
 
+// Health check endpoint
+app.get('/api/health', (req, res) => {
+  res.json({
+    status: 'ok',
+    mongo: mongoose.connection.readyState === 1 ? 'connected' : 'disconnected',
+    timestamp: new Date().toISOString()
+  });
+});
+
 const PORT = process.env.PORT || 8000;
-if (process.env.NODE_ENV !== 'production' || require.main === module) {
+
+// Only start the HTTP server when running directly (not when imported by Vercel)
+if (require.main === module) {
   app.listen(PORT, () => console.log(`Server running on port ${PORT}`));
 }
+
 module.exports = app;
