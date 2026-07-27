@@ -12,7 +12,7 @@ import SkeletonLoader from './SkeletonLoader';
 import { useAuth } from '../context/AuthContext';
 import { useToast } from '../context/ToastContext';
 
-const API = import.meta.env.VITE_API_URL || 'http://localhost:8000';
+const API = import.meta.env.VITE_API_URL ?? (import.meta.env.DEV ? 'http://localhost:8000' : '');
 
 const PERSONAS = [
   { id: '', name: 'Assistant' },

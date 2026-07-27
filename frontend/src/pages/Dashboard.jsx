@@ -6,7 +6,7 @@ import CommandPalette from '../components/CommandPalette';
 import ThemeBuilder from '../components/ThemeBuilder';
 import { useAuth } from '../context/AuthContext';
 
-const API = import.meta.env.VITE_API_URL || 'http://localhost:8000';
+const API = import.meta.env.VITE_API_URL ?? (import.meta.env.DEV ? 'http://localhost:8000' : '');
 
 export default function Dashboard() {
   const [sidebarOpen, setSidebarOpen] = useState(true);
