@@ -1,19 +1,19 @@
-# 🎬 NexusAI Studio — Detailed Code & Video Walkthrough Guide
+# 🎬 NexusAI Studio — Detailed Full-Stack Code & Video Walkthrough Guide
 > **Total Target Duration:** 4 to 5 Minutes  
 > **Presenter:** Aman Sheikh  
-> **Goal:** High-impact demo covering Web App Features + Detailed Code Walkthrough (File by File, Line by Line).
+> **Goal:** High-impact demo covering Web App Features + Full-Stack Code Walkthrough (Frontend UI + Backend Express/MongoDB).
 
 ---
 
-## 🖥️ STEP 1: Pre-Recording Editor Setup (Open these tabs in VS Code beforehand)
+## 🖥️ STEP 1: Pre-Recording Editor Setup (Open these 5 tabs in VS Code beforehand)
 
 Arrange your VS Code tabs in this exact order so you can click through them smoothly:
 
-1. **Tab 1:** `frontend/src/context/AuthContext.jsx` (Scroll to lines 17–40)
-2. **Tab 2:** `frontend/src/components/ChatArea.jsx` (Scroll to lines 44–65 and 105–160)
-3. **Tab 3:** `frontend/src/components/ChatInput.jsx` (Scroll to lines 40–75)
-4. **Tab 4:** `frontend/src/components/Sidebar.jsx` (Scroll to lines 20–55)
-5. **Tab 5:** `frontend/api/index.js` (Scroll to lines 18–28 and 110–175)
+* **Tab 1 [Frontend]:** `frontend/src/context/AuthContext.jsx` (Scroll to lines 17–40)
+* **Tab 2 [Frontend]:** `frontend/src/components/ChatArea.jsx` (Scroll to lines 44–65 and 110–160)
+* **Tab 3 [Frontend]:** `frontend/src/components/ChatInput.jsx` (Scroll to lines 40–75)
+* **Tab 4 [Backend Data Models]:** `backend/models/User.js` & `backend/models/Chat.js` (Scroll to Mongoose Schemas)
+* **Tab 5 [Backend Express API]:** `backend/server.js` (Scroll to lines 18–35 and 135–185)
 
 ---
 
@@ -64,36 +64,36 @@ Arrange your VS Code tabs in this exact order so you can click through them smoo
 
 ---
 
-### 📍 PART B: DEAILED CODE WALKTHROUGH (Minutes 2:15 – 4:30)
+### 📍 PART B: DETAILED FULL-STACK CODE WALKTHROUGH (Minutes 2:15 – 4:30)
 
 *Switch screen capture to **VS Code**.*
 
 ---
 
-#### **Code File 1: `frontend/src/context/AuthContext.jsx` (2:15 – 2:50)**
+#### **Code File 1 [Frontend Auth]: `frontend/src/context/AuthContext.jsx` (2:15 – 2:45)**
 * **On-Screen Action:**  
   - Click VS Code Tab 1 (`AuthContext.jsx`).
   - Highlight lines 17–36 (`_auth` function) with your mouse cursor.
 * **Exact Script to Say:**  
-  > *"Now let's look at the codebase. Here in `AuthContext.jsx`, lines 17 to 36 handle authentication state management.*
+  > *"Now let's look at the full-stack codebase. Here in `AuthContext.jsx`, lines 17 to 36 handle frontend authentication state.*
   >
-  > *The `_auth` function issues POST requests to `/api/auth/login` or `/api/auth/register`, parses the returned JSON payload safely, and stores the JWT bearer token and username in browser `localStorage`. This keeps the user session authenticated across page refreshes."*
+  > *The `_auth` function issues POST requests to `/api/auth/login` or `/api/auth/register`, parses the returned JSON payload safely, and stores the JWT bearer token and username in browser `localStorage`. This keeps user sessions authenticated across page refreshes."*
 
 ---
 
-#### **Code File 2: `frontend/src/components/ChatArea.jsx` (2:50 – 3:30)**
+#### **Code File 2 [Frontend Streaming]: `frontend/src/components/ChatArea.jsx` (2:45 – 3:20)**
 * **On-Screen Action:**  
   - Click VS Code Tab 2 (`ChatArea.jsx`).
   - Highlight lines 44–58 (`ignoreNextLoadRef` guard in `useEffect`).
   - Scroll down and highlight lines 110–155 (the SSE streaming reader loop).
 * **Exact Script to Say:**  
-  > *"Moving to `ChatArea.jsx`, lines 44 to 58 solve a critical race condition. When creating a new chat session, we use an `ignoreNextLoadRef` guard to prevent `useEffect` from overwriting local state with an empty array before the server finishes streaming.*
+  > *"Moving to `ChatArea.jsx`, lines 44 to 58 solve a critical race condition. When starting a new chat session, we use an `ignoreNextLoadRef` guard to prevent `useEffect` from overwriting local state with an empty array before the server finishes streaming.*
   >
   > *Down in lines 110 to 155, `handleSendMessage` handles real-time response streaming. It consumes `response.body.getReader()`, decodes text chunks using `TextDecoder`, and continuously appends incoming tokens to React state so the UI updates instantly as AI generates responses."*
 
 ---
 
-#### **Code File 3: `frontend/src/components/ChatInput.jsx` (3:30 – 3:55)**
+#### **Code File 3 [Frontend Document Ingestion]: `frontend/src/components/ChatInput.jsx` (3:20 – 3:45)**
 * **On-Screen Action:**  
   - Click VS Code Tab 3 (`ChatInput.jsx`).
   - Highlight lines 40–60 (`handleFileUpload` function using `FileReader`).
@@ -102,13 +102,24 @@ Arrange your VS Code tabs in this exact order so you can click through them smoo
 
 ---
 
-#### **Code File 4: `frontend/api/index.js` (Backend API & Fallback) (3:55 – 4:40)**
+#### **Code File 4 [Backend Data Models]: `backend/models/User.js` & `backend/models/Chat.js` (3:45 – 4:05)**
 * **On-Screen Action:**  
-  - Click VS Code Tab 5 (`frontend/api/index.js`).
+  - Click VS Code Tab 4 (`backend/models/User.js` and `backend/models/Chat.js`).
+  - Highlight the Mongoose `UserSchema` and `ChatSchema` definitions.
+* **Exact Script to Say:**  
+  > *"Now switching to our Node.js backend: in `backend/models/User.js` and `Chat.js`, we define our Mongoose database schemas.*
+  >
+  > *`UserSchema` enforces unique username indices and stores bcrypt password hashes. `ChatSchema` structures conversation histories, message roles, and timestamps with embedded sub-documents for fast queries in MongoDB Atlas."*
+
+---
+
+#### **Code File 5 [Backend Server & Fallback Pipeline]: `backend/server.js` (4:05 – 4:40)**
+* **On-Screen Action:**  
+  - Click VS Code Tab 5 (`backend/server.js`).
   - Highlight lines 18–28 (`connectDB` serverless pooling helper).
   - Scroll to lines 135–165 (the `fallbackModels` array and `for (const m of modelsToTry)` loop).
 * **Exact Script to Say:**  
-  > *"Finally, looking at our serverless API entrypoint in `frontend/api/index.js`:*
+  > *"Finally, looking at our Express API server in `backend/server.js`:*
   >
   > *Lines 18 to 28 implement `connectDB()`, a serverless connection pooling helper. It reuses existing Mongoose connection instances across lambda invocations to eliminate cold-start buffering timeouts.*
   >
@@ -119,7 +130,7 @@ Arrange your VS Code tabs in this exact order so you can click through them smoo
 ### 📍 PART C: CONCLUSION & TIME SPENT (Minutes 4:40 – 5:00)
 
 * **On-Screen Action:**  
-  - Switch browser to Tab 3 (**GitHub Repository**).
+  - Switch browser to **GitHub Repository page**.
 * **Exact Script to Say:**  
   > *"Overall, I spent approximately **15 hours** designing the glassmorphic UI system, implementing SSE token streaming, optimizing serverless database connections, and deploying the app live.*
   >
