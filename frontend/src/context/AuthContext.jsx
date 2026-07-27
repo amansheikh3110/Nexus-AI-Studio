@@ -21,11 +21,11 @@ export const AuthProvider = ({ children }) => {
       body:    JSON.stringify({ username, password }),
     });
     let data = {};
+    const text = await res.text();
     try {
-      const text = await res.text();
       data = text ? JSON.parse(text) : {};
     } catch (err) {
-      throw new Error(`Server returned invalid response (${res.status})`);
+      throw new Error(text.substring(0, 100) || `Server error (${res.status})`);
     }
     if (!res.ok) throw new Error(data.error || `Authentication failed (${res.status})`);
     if (!data.token) throw new Error('No token returned from server');
