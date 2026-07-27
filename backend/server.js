@@ -31,7 +31,7 @@ const connectDB = async () => {
 // OpenRouter API setup
 const openai = new OpenAI({
   baseURL: "https://openrouter.ai/api/v1",
-  apiKey: process.env.OPENROUTER_API_KEY,
+  apiKey: process.env.OPENROUTER_API_KEY || "sk-or-v1-dummy-fallback-key-for-init",
 });
 
 // --- Auth Routes ---
