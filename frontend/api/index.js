@@ -5,9 +5,9 @@ const dotenv = require('dotenv');
 const bcrypt = require('bcryptjs');
 const jwt = require('jsonwebtoken');
 const { OpenAI } = require('openai');
-const User = require('../../backend/models/User');
-const Chat = require('../../backend/models/Chat');
-const authMiddleware = require('../../backend/middleware/auth');
+const User = require('./models/User');
+const Chat = require('./models/Chat');
+const authMiddleware = require('./middleware/auth');
 
 dotenv.config();
 
