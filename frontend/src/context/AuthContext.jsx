@@ -15,14 +15,20 @@ export const AuthProvider = ({ children }) => {
   useEffect(() => { setLoading(false); }, []);
 
   const _auth = async (endpoint, username, password) => {
-    const res  = await fetch(`${API}${endpoint}`, {
+    const res = await fetch(`${API}${endpoint}`, {
       method:  'POST',
       headers: { 'Content-Type': 'application/json' },
       body:    JSON.stringify({ username, password }),
     });
-    const data = await res.json();
-    if (!res.ok) throw new Error(data.error || 'Authentication failed');
-    if (!data.token) throw new Error('No token returned');
+    let data = {};
+    try {
+      const text = await res.text();
+      data = text ? JSON.parse(text) : {};
+    } catch (err) {
+      throw new Error(`Server returned invalid response (${res.status})`);
+    }
+    if (!res.ok) throw new Error(data.error || `Authentication failed (${res.status})`);
+    if (!data.token) throw new Error('No token returned from server');
     localStorage.setItem('token',    data.token);
     localStorage.setItem('username', data.username || username);
     setToken(data.token);

@@ -31,10 +31,11 @@ export default function Dashboard() {
         headers: { Authorization: `Bearer ${token}` },
       });
       if (res.ok) {
-        const data = await res.json();
-        setChats(data);
+        const text = await res.text();
+        const data = text ? JSON.parse(text) : [];
+        setChats(Array.isArray(data) ? data : []);
         const savedId = localStorage.getItem('activeChatId');
-        if (savedId && data.some(c => c._id === savedId)) {
+        if (savedId && Array.isArray(data) && data.some(c => c._id === savedId)) {
           setActiveChatState(savedId);
         }
       } else if (res.status === 401) {
