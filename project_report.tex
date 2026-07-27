@@ -1,0 +1,83 @@
+\documentclass[11pt,a4paper]{article}
+\usepackage[utf8]{inputenc}
+\usepackage[margin=1in]{geometry}
+\usepackage{hyperref}
+\usepackage{xcolor}
+\usepackage{titlesec}
+\usepackage{enumitem}
+\usepackage{listings}
+\usepackage{tikz}
+\usetikzlibrary{shapes.graphicx,positioning,shapes.geometric}
+
+\definecolor{accentcolor}{RGB}{124, 58, 237}
+\hypersetup{colorlinks=true, linkcolor=accentcolor, urlcolor=accentcolor}
+
+\titleformat{\section}{\large\bfseries\color{accentcolor}}{\thesection}{1em}{}[\hrule height 0.5pt]
+\titleformat{\subsection}{\normalfont\bfseries}{\thesubsection}{1em}{}
+
+\title{\textbf{\Huge NexusAI Studio}\\ \vspace{0.2cm} \large Comprehensive Project \& Architecture Report}
+\author{\textbf{Developer:} Aman Sheikh \quad|\quad \textbf{Total Time Spent:} $\sim$15 Hours}
+\date{\today}
+
+\begin{document}
+
+\maketitle
+
+\begin{abstract}
+NexusAI Studio is a production-grade, cinematic AI chat web application engineered to bridge the gap between raw LLM inference and fluid user experiences. Built with React 18, Vite, Node.js Express, MongoDB Atlas, and OpenRouter, NexusAI Studio features real-time Server-Sent Events (SSE) token streaming, multi-model fallback routing, client-side document parsing, dynamic AI personas, and customizable glassmorphism UI design systems.
+\end{abstract}
+
+\section{Problem Statement \& Objectives}
+Modern conversational AI interfaces often suffer from restrictive single-model lock-in, poor UI contrast, laggy full-response re-renders, and inflexible system persona configurations. NexusAI Studio addresses these core friction points by establishing:
+\begin{enumerate}[leftmargin=*]
+  \item \textbf{Resilient Multi-Model Access:} Eliminating single-point-of-failure API limits through intelligent automated fallback routing across 6+ LLM models.
+  \item \textbf{Cinematic UX Design System:} Delivering ChatGPT/Gemini-grade glassmorphic aesthetics, adaptive dark/light themes, and custom palette customization.
+  \item \textbf{Contextual Ingestion:} Enabling seamless zero-upload client-side code and document parsing directly into prompt streams.
+\end{enumerate}
+
+\section{System Architecture \& Tech Stack}
+
+\subsection{Technology Stack}
+\begin{itemize}[leftmargin=*]
+  \item \textbf{Frontend Layer:} React 18, Vite, Framer Motion, TailwindCSS, Lucide Icons, React Markdown, Syntax Highlighter.
+  \item \textbf{Backend API Layer:} Node.js, Express, OpenRouter API SDK, JWT Authentication, Bcrypt password hashing.
+  \item \textbf{Data \& Infrastructure Layer:} MongoDB Atlas (Mongoose ODM), Vercel Serverless Functions (`@vercel/node`).
+\end{itemize}
+
+\subsection{Architecture Diagram}
+\begin{center}
+\begin{tikzpicture}[node distance=1.8cm, auto, >=stealth]
+  \node [draw, fill=purple!10, rounded corners, width=3cm, align=center] (client) {\textbf{React 18 Frontend}\\Vite + Tailwind + SSE};
+  \node [draw, fill=blue!10, rounded corners, right=2.5cm of client, align=center] (api) {\textbf{Express API Handler}\\Vercel Serverless Lambda};
+  \node [draw, fill=green!10, rounded corners, above right=1.2cm of api, align=center] (db) {\textbf{MongoDB Atlas}\\Cloud User \& Chat Store};
+  \node [draw, fill=orange!10, rounded corners, below right=1.2cm of api, align=center] (openrouter) {\textbf{OpenRouter AI}\\Multi-Model Fallback Chain};
+
+  \draw[->, thick] (client) -- node[above] {HTTP / SSE} (api);
+  \draw[->, thick] (api) -- node[above, sloped] {Mongoose} (db);
+  \draw[->, thick] (api) -- node[below, sloped] {Streaming API} (openrouter);
+\end{tikzpicture}
+\end{center}
+
+\section{Key Technical Decisions}
+\begin{enumerate}[leftmargin=*]
+  \item \textbf{Server-Sent Events (SSE) over WebSockets:} Selected SSE for character-by-character token streaming due to lower HTTP overhead, simplified serverless compatibility, and native browser `TextDecoder` streaming support.
+  \item \textbf{Serverless Connection Pooling:} Implemented an `await connectDB()` connection pool helper with `serverSelectionTimeoutMS: 5000` to prevent Mongoose buffering timeouts during serverless cold starts.
+  \item \textbf{CSS Custom Property Design Tokens:} Designed `--c-bg`, `--c-surface`, and `--c-user-bubble` variables allowing instant runtime theme switches without expensive component re-renders.
+\end{enumerate}
+
+\section{Challenges Faced \& Technical Resolutions}
+\begin{itemize}[leftmargin=*]
+  \item \textbf{Challenge 1: First-Message Race Condition on New Chats.} When starting a new chat, assigning `activeChat` triggered `useEffect` which fetched `loadMessages` before the server response completed, overwriting local state with an empty array. \\
+  \textit{Resolution:} Introduced an `ignoreNextLoadRef` guard flag to bypass initial message clearing during chat initialization.
+  \item \textbf{Challenge 2: Vercel Serverless Cold-Start Crashes.} Top-level `new OpenAI()` SDK calls threw synchronous exceptions when environment variables loaded asynchronously. \\
+  \textit{Resolution:} Provided initialization fallback keys and self-contained CommonJS packaging in `frontend/api/index.js`.
+\end{itemize}
+
+\section{Future Improvements}
+\begin{enumerate}[leftmargin=*]
+  \item \textbf{Vector RAG Pipeline:} Integrating Pinecone or pgvector for semantic search over large uploaded PDF/Word documents.
+  \item \textbf{Voice-to-Voice Realtime Streaming:} Adding WebRTC-based low-latency voice interaction.
+  \item \textbf{Multi-User Real-time Collaboration:} Allowing shared chat links and collaborative prompt sessions.
+\end{enumerate}
+
+\end{document}
