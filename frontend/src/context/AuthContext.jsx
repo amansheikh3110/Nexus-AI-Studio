@@ -42,6 +42,7 @@ export const AuthProvider = ({ children }) => {
   const logout = () => {
     localStorage.removeItem('token');
     localStorage.removeItem('username');
+    localStorage.removeItem('activeChatId'); // avoid leaking a chat reference into the next account's session
     setToken(null);
     setUser(null);
   };

@@ -35,14 +35,21 @@ export default function Dashboard() {
         const data = text ? JSON.parse(text) : [];
         setChats(Array.isArray(data) ? data : []);
         const savedId = localStorage.getItem('activeChatId');
-        if (savedId && Array.isArray(data) && data.some(c => c._id === savedId)) {
-          setActiveChatState(savedId);
+        if (savedId) {
+          if (Array.isArray(data) && data.some(c => c._id === savedId)) {
+            setActiveChatState(savedId);
+          } else {
+            // Stale reference (deleted chat, or leftover from a previous account) - clear it
+            // instead of leaving it in state, otherwise the next send targets a chat that
+            // doesn't belong to this user and 404s.
+            changeActiveChat(null);
+          }
         }
       } else if (res.status === 401) {
         logout();
       }
     } catch {}
-  }, [token, logout]);
+  }, [token, logout, changeActiveChat]);
 
   useEffect(() => {
     if (token) fetchChats();
