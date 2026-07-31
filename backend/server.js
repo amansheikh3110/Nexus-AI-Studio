@@ -32,6 +32,8 @@ const connectDB = async () => {
 const openai = new OpenAI({
   baseURL: "https://openrouter.ai/api/v1",
   apiKey: process.env.OPENROUTER_API_KEY || "sk-or-v1-dummy-fallback-key-for-init",
+  timeout: 12000,
+  maxRetries: 0, // we already fall back across models ourselves; the SDK's own retry/backoff would multiply latency per model and blow past the function's time limit
 });
 
 // --- Auth Routes ---
@@ -154,15 +156,15 @@ app.post('/api/chats/:id/message', authMiddleware, async (req, res) => {
     await chat.save();
     
     const fallbackModels = [
-      "openai/gpt-oss-20b:free",
-      "google/gemma-4-31b-it:free",
-      "google/gemma-4-26b-a4b-it:free",
+      "inclusionai/ling-3.0-flash:free",
+      "poolside/laguna-s-2.1:free",
       "nvidia/nemotron-3-ultra-550b-a55b:free",
       "nvidia/nemotron-3-super-120b-a12b:free",
-      "cohere/north-mini-code:free"
+      "cohere/north-mini-code:free",
+      "poolside/laguna-xs-2.1:free"
     ];
 
-    let modelsToTry = [model || "google/gemini-2.0-flash-exp:free"];
+    let modelsToTry = [model || "inclusionai/ling-3.0-flash:free"];
     for (const fb of fallbackModels) {
        if (!modelsToTry.includes(fb)) modelsToTry.push(fb);
     }
@@ -176,7 +178,7 @@ app.post('/api/chats/:id/message', authMiddleware, async (req, res) => {
             model: m,
             messages: apiMessages,
             stream: true,
-          });
+          }, { timeout: 8000, maxRetries: 0 });
           successfulModel = m;
           break; // Connection succeeded!
        } catch (apiErr) {

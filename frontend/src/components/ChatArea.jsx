@@ -30,7 +30,7 @@ export default function ChatArea({
   const [isLoading,   setIsLoading]   = useState(false);
   const [isFetching,  setIsFetching]  = useState(false);
   const [isStreaming, setIsStreaming]  = useState(false);
-  const [model,       setModel]       = useState('openai/gpt-oss-20b:free');
+  const [model,       setModel]       = useState('inclusionai/ling-3.0-flash:free');
   const [persona,     setPersona]     = useState(PERSONAS[0]);
   const [showScrollBtn, setShowScrollBtn] = useState(false);
   const [activeChatId, setActiveChatId]   = useState(null); // track to avoid race conditions

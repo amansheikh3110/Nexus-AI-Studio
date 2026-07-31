@@ -4,15 +4,15 @@ import TextareaAutosize from 'react-textarea-autosize';
 import { Send, Square, Paperclip, ChevronDown, Sparkles, Bot, FileText, X } from 'lucide-react';
 import { useToast } from '../context/ToastContext';
 
-const SUPPORTED_EXT = ['.txt','.md','.csv','.json','.js','.ts','.jsx','.tsx','.py','.html','.css','.xml','.yaml','.yml','.toml','.sh','.sql','.java','.c','.cpp','.rs'];
+const SUPPORTED_EXT = ['.txt', '.md', '.csv', '.json', '.js', '.ts', '.jsx', '.tsx', '.py', '.html', '.css', '.xml', '.yaml', '.yml', '.toml', '.sh', '.sql', '.java', '.c', '.cpp', '.rs'];
 
 const MODELS = [
-  { id: 'openai/gpt-oss-20b:free',                label: 'GPT OSS 20B',    badge: 'Free' },
-  { id: 'google/gemma-4-31b-it:free',             label: 'Gemma 4 31B',    badge: 'Free' },
-  { id: 'google/gemma-4-26b-a4b-it:free',         label: 'Gemma 4 26B',    badge: 'Free' },
+  { id: 'inclusionai/ling-3.0-flash:free', label: 'Ling 3.0 Flash', badge: 'Free' },
+  { id: 'poolside/laguna-s-2.1:free', label: 'Laguna S 2.1', badge: 'Free' },
   { id: 'nvidia/nemotron-3-ultra-550b-a55b:free', label: 'Nemotron Ultra', badge: 'Free' },
   { id: 'nvidia/nemotron-3-super-120b-a12b:free', label: 'Nemotron Super', badge: 'Free' },
-  { id: 'cohere/north-mini-code:free',            label: 'Cohere North',   badge: 'Free' },
+  { id: 'cohere/north-mini-code:free', label: 'Cohere North', badge: 'Free' },
+  { id: 'poolside/laguna-xs-2.1:free', label: 'Laguna XS 2.1', badge: 'Free' },
 ];
 
 export default function ChatInput({
@@ -20,22 +20,22 @@ export default function ChatInput({
   selectedModel, onModelChange,
   selectedPersona, onPersonaChange, personas = [],
 }) {
-  const [text,         setText]         = useState('');
-  const [showModels,   setShowModels]   = useState(false);
-  const [showPersona,  setShowPersona]  = useState(false);
+  const [text, setText] = useState('');
+  const [showModels, setShowModels] = useState(false);
+  const [showPersona, setShowPersona] = useState(false);
   const [attachedFile, setAttachedFile] = useState(null); // { name, content }
 
-  const textareaRef      = useRef(null);
-  const modelDropRef     = useRef(null);
-  const personaDropRef   = useRef(null);
-  const fileInputRef     = useRef(null);
-  const { toast }        = useToast();
-  const charLimit        = 4000;
+  const textareaRef = useRef(null);
+  const modelDropRef = useRef(null);
+  const personaDropRef = useRef(null);
+  const fileInputRef = useRef(null);
+  const { toast } = useToast();
+  const charLimit = 4000;
 
   // Close dropdowns on outside click
   useEffect(() => {
     const handler = (e) => {
-      if (modelDropRef.current   && !modelDropRef.current.contains(e.target))   setShowModels(false);
+      if (modelDropRef.current && !modelDropRef.current.contains(e.target)) setShowModels(false);
       if (personaDropRef.current && !personaDropRef.current.contains(e.target)) setShowPersona(false);
     };
     document.addEventListener('mousedown', handler);
@@ -72,7 +72,7 @@ export default function ChatInput({
     e?.preventDefault();
     if (disabled) return; // stop button handled in parent via onSend wrapper
 
-    const hasMsg  = text.trim().length > 0;
+    const hasMsg = text.trim().length > 0;
     const hasFile = attachedFile !== null;
     if (!hasMsg && !hasFile) return;
 
@@ -99,10 +99,10 @@ export default function ChatInput({
     }
   };
 
-  const hasContent  = text.trim().length > 0 || attachedFile !== null;
+  const hasContent = text.trim().length > 0 || attachedFile !== null;
   const charPercent = Math.min((text.length / charLimit) * 100, 100);
-  const nearLimit   = text.length > charLimit * 0.85;
-  const overLimit   = text.length > charLimit;
+  const nearLimit = text.length > charLimit * 0.85;
+  const overLimit = text.length > charLimit;
   const currentModel = MODELS.find(m => m.id === selectedModel) || MODELS[0];
 
   return (
@@ -122,8 +122,8 @@ export default function ChatInput({
           <motion.div
             ref={modelDropRef}
             initial={{ opacity: 0, y: 8, scale: 0.97 }}
-            animate={{ opacity: 1, y: 0, scale: 1    }}
-            exit={{    opacity: 0, y: 8, scale: 0.97  }}
+            animate={{ opacity: 1, y: 0, scale: 1 }}
+            exit={{ opacity: 0, y: 8, scale: 0.97 }}
             transition={{ duration: 0.15 }}
             className="absolute bottom-full mb-2 left-0 z-50 glass rounded-xl shadow-card overflow-hidden min-w-[240px]"
           >
@@ -148,8 +148,8 @@ export default function ChatInput({
           <motion.div
             ref={personaDropRef}
             initial={{ opacity: 0, y: 8, scale: 0.97 }}
-            animate={{ opacity: 1, y: 0, scale: 1    }}
-            exit={{    opacity: 0, y: 8, scale: 0.97  }}
+            animate={{ opacity: 1, y: 0, scale: 1 }}
+            exit={{ opacity: 0, y: 8, scale: 0.97 }}
             transition={{ duration: 0.15 }}
             className="absolute bottom-full mb-2 left-32 z-50 glass rounded-xl shadow-card overflow-hidden min-w-[170px]"
           >
@@ -283,14 +283,14 @@ export default function ChatInput({
               onClick={handleSubmit}
               disabled={(!hasContent && !disabled) || overLimit}
               whileHover={(hasContent || disabled) && !overLimit ? { scale: 1.06 } : {}}
-              whileTap={(hasContent || disabled) && !overLimit  ? { scale: 0.94 } : {}}
+              whileTap={(hasContent || disabled) && !overLimit ? { scale: 0.94 } : {}}
               className={`w-9 h-9 rounded-xl flex items-center justify-center
                           transition-all duration-200
                           ${disabled
-                            ? 'bg-red-500/80 text-white cursor-pointer'
-                            : hasContent && !overLimit
-                              ? 'bg-accent text-white shadow-glow-sm hover:brightness-110'
-                              : 'bg-raised text-c-muted cursor-not-allowed'}`}
+                  ? 'bg-red-500/80 text-white cursor-pointer'
+                  : hasContent && !overLimit
+                    ? 'bg-accent text-white shadow-glow-sm hover:brightness-110'
+                    : 'bg-raised text-c-muted cursor-not-allowed'}`}
             >
               {disabled
                 ? <Square size={14} fill="currentColor" />

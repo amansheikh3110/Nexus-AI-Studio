@@ -160,13 +160,15 @@ app.post('/api/chats/:id/message', authMiddleware, async (req, res) => {
     // load, which blows past Vercel's function time limit before a fallback
     // even gets a chance to run.
     const fallbackModels = [
-      "openai/gpt-oss-20b:free",
-      "google/gemma-4-26b-a4b-it:free",
-      "nvidia/nemotron-3-nano-30b-a3b:free",
-      "cohere/north-mini-code:free"
+      "inclusionai/ling-3.0-flash:free",
+      "poolside/laguna-s-2.1:free",
+      "nvidia/nemotron-3-ultra-550b-a55b:free",
+      "nvidia/nemotron-3-super-120b-a12b:free",
+      "cohere/north-mini-code:free",
+      "poolside/laguna-xs-2.1:free"
     ];
 
-    let modelsToTry = [model || "openai/gpt-oss-20b:free"];
+    let modelsToTry = [model || "inclusionai/ling-3.0-flash:free"];
     for (const fb of fallbackModels) {
        if (!modelsToTry.includes(fb)) modelsToTry.push(fb);
     }
