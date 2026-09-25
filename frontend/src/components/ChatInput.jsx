@@ -7,9 +7,9 @@ import { useToast } from '../context/ToastContext';
 const SUPPORTED_EXT = ['.txt', '.md', '.csv', '.json', '.js', '.ts', '.jsx', '.tsx', '.py', '.html', '.css', '.xml', '.yaml', '.yml', '.toml', '.sh', '.sql', '.java', '.c', '.cpp', '.rs'];
 
 const MODELS = [
-  { id: 'nvidia/nemotron-3-ultra-550b-a55b:free', label: 'Nemotron Ultra', badge: 'Free' },
   { id: 'inclusionai/ling-3.0-flash-fin:free', label: 'Ling 3.0 Flash Fin', badge: 'Free' },
   { id: 'poolside/laguna-s-2.1:free', label: 'Laguna S 2.1', badge: 'Free' },
+  { id: 'nvidia/nemotron-3-ultra-550b-a55b:free', label: 'Nemotron Ultra', badge: 'Free' },
   { id: 'dots-studio/dots-3-note-preview:free', label: 'Dots 3 Note Preview', badge: 'Free' },
   { id: 'nvidia/nemotron-3.5-lightning:free', label: 'Nemotron 3.5 Lightning', badge: 'Free' },
 ];
