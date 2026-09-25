@@ -160,14 +160,14 @@ app.post('/api/chats/:id/message', authMiddleware, async (req, res) => {
     // load, which blows past Vercel's function time limit before a fallback
     // even gets a chance to run.
     const fallbackModels = [
-      "nvidia/nemotron-3-ultra-550b-a55b:free",
       "inclusionai/ling-3.0-flash-fin:free",
       "poolside/laguna-s-2.1:free",
       "dots-studio/dots-3-note-preview:free",
-      "nvidia/nemotron-3.5-lightning:free"
+      "nvidia/nemotron-3.5-lightning:free",
+      "nvidia/nemotron-3-ultra-550b-a55b:free"
     ];
 
-    let modelsToTry = [model || "inclusionai/ling-3.0-flash:free"];
+    let modelsToTry = [model || "inclusionai/ling-3.0-flash-fin:free"];
     for (const fb of fallbackModels) {
        if (!modelsToTry.includes(fb)) modelsToTry.push(fb);
     }
