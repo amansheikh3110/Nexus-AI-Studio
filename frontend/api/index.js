@@ -42,16 +42,16 @@ app.post('/api/auth/register', async (req, res) => {
     await connectDB();
     const { username, password } = req.body;
     if (!username || !password) return res.status(400).json({ error: 'Username and password are required' });
-    
+
     let user = await User.findOne({ username });
     if (user) return res.status(400).json({ error: 'User already exists' });
-    
+
     const salt = await bcrypt.genSalt(10);
     const passwordHash = await bcrypt.hash(password, salt);
-    
+
     user = new User({ username, passwordHash });
     await user.save();
-    
+
     const token = jwt.sign({ userId: user._id }, process.env.JWT_SECRET || 'secret123', { expiresIn: '7d' });
     res.json({ token, username });
   } catch (err) {
@@ -68,10 +68,10 @@ app.post('/api/auth/login', async (req, res) => {
 
     const user = await User.findOne({ username });
     if (!user) return res.status(400).json({ error: 'Invalid credentials' });
-    
+
     const isMatch = await bcrypt.compare(password, user.passwordHash);
     if (!isMatch) return res.status(400).json({ error: 'Invalid credentials' });
-    
+
     const token = jwt.sign({ userId: user._id }, process.env.JWT_SECRET || 'secret123', { expiresIn: '7d' });
     res.json({ token, username });
   } catch (err) {
@@ -135,63 +135,62 @@ app.post('/api/chats/:id/message', authMiddleware, async (req, res) => {
     const { message, model, persona } = req.body;
     const chat = await Chat.findOne({ _id: req.params.id, userId: req.user });
     if (!chat) return res.status(404).json({ error: 'Chat not found' });
-    
+
     if (chat.messages.length === 0) {
       chat.title = message.substring(0, 30) + '...';
     }
-    
+
     chat.messages.push({ role: 'user', content: message });
-    
+
     let apiMessages = [];
     if (persona) {
-       apiMessages.push({ role: 'system', content: persona });
+      apiMessages.push({ role: 'system', content: persona });
     }
-    
+
     const recentMessages = chat.messages.slice(-10).map(m => ({
-       role: m.role,
-       content: m.content
+      role: m.role,
+      content: m.content
     }));
     apiMessages = [...apiMessages, ...recentMessages];
-    
+
     await chat.save();
-    
+
     // Kept short and to small/fast models only: the 120B/550B free models on
     // OpenRouter routinely take 10-30s+ to start streaming under free-tier
     // load, which blows past Vercel's function time limit before a fallback
     // even gets a chance to run.
     const fallbackModels = [
-      "inclusionai/ling-3.0-flash:free",
-      "poolside/laguna-s-2.1:free",
       "nvidia/nemotron-3-ultra-550b-a55b:free",
-      "nvidia/nemotron-3-super-120b-a12b:free",
-      "cohere/north-mini-code:free",
-      "poolside/laguna-xs-2.1:free"
+      "inclusionai/ling-3.0-flash-fin:free",
+      "poolside/laguna-s-2.1:free",
+      "dots-studio/dots-3-note-preview:free",
+      "nvidia/nemotron-3.5-lightning:free"
     ];
 
     let modelsToTry = [model || "inclusionai/ling-3.0-flash:free"];
     for (const fb of fallbackModels) {
-       if (!modelsToTry.includes(fb)) modelsToTry.push(fb);
+      if (!modelsToTry.includes(fb)) modelsToTry.push(fb);
     }
 
     let stream = null;
     let successfulModel = null;
 
     for (const m of modelsToTry) {
-       try {
-          stream = await openai.chat.completions.create({
-            model: m,
-            messages: apiMessages,
-            stream: true,
-          }, { timeout: 8000, maxRetries: 0 });
-          successfulModel = m;
-          break; // Connection succeeded!
-       } catch (apiErr) {
-          console.warn(`[Fallback] Model ${m} failed: ${apiErr.message}. Trying next...`);
-       }
+      try {
+        stream = await openai.chat.completions.create({
+          model: m,
+          messages: apiMessages,
+          stream: true,
+        }, { timeout: 8000, maxRetries: 0 });
+        successfulModel = m;
+        break; // Connection succeeded!
+      } catch (apiErr) {
+        console.warn(`[Fallback] Model ${m} failed: ${apiErr.message}. Trying next...`);
+      }
     }
 
     if (!stream) {
-       throw new Error("All fallback models failed to respond.");
+      throw new Error("All fallback models failed to respond.");
     }
 
     res.setHeader('Content-Type', 'text/event-stream');
@@ -206,18 +205,18 @@ app.post('/api/chats/:id/message', authMiddleware, async (req, res) => {
         res.write(content);
       }
     }
-    
+
     res.end();
-    
+
     chat.messages.push({ role: 'assistant', content: fullResponse });
     await chat.save();
-    
+
   } catch (err) {
     console.error(err);
     if (!res.headersSent) {
-       res.status(500).json({ error: err.message || 'AI API error' });
+      res.status(500).json({ error: err.message || 'AI API error' });
     } else {
-       res.end();
+      res.end();
     }
   }
 });

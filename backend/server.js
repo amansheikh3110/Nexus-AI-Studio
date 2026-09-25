@@ -156,12 +156,11 @@ app.post('/api/chats/:id/message', authMiddleware, async (req, res) => {
     await chat.save();
     
     const fallbackModels = [
-      "inclusionai/ling-3.0-flash:free",
-      "poolside/laguna-s-2.1:free",
       "nvidia/nemotron-3-ultra-550b-a55b:free",
-      "nvidia/nemotron-3-super-120b-a12b:free",
-      "cohere/north-mini-code:free",
-      "poolside/laguna-xs-2.1:free"
+      "inclusionai/ling-3.0-flash-fin:free",
+      "poolside/laguna-s-2.1:free",
+      "dots-studio/dots-3-note-preview:free",
+      "nvidia/nemotron-3.5-lightning:free"
     ];
 
     let modelsToTry = [model || "inclusionai/ling-3.0-flash:free"];
