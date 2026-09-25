@@ -4,6 +4,8 @@
 
 ![NexusAI Studio Banner](https://img.shields.io/badge/Status-Production--Ready-brightgreen?style=for-the-badge) ![React](https://img.shields.io/badge/React-18-blue?style=for-the-badge&logo=react) ![Vite](https://img.shields.io/badge/Vite-5-646CFF?style=for-the-badge&logo=vite) ![TailwindCSS](https://img.shields.io/badge/Tailwind-3.4-38B2AC?style=for-the-badge&logo=tailwindcss) ![Node.js](https://img.shields.io/badge/Node.js-22-339933?style=for-the-badge&logo=node.js) ![Express](https://img.shields.io/badge/Express-5-000000?style=for-the-badge&logo=express) ![MongoDB](https://img.shields.io/badge/MongoDB-Atlas-47A248?style=for-the-badge&logo=mongodb)
 
+**🚀 Live Demo:** [https://nexus-ai-studio-two.vercel.app/](https://nexus-ai-studio-two.vercel.app/)
+
 ---
 
 ## 🌟 Overview
