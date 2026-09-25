@@ -36,3 +36,9 @@ frontend/temp.txt
 frontend/dom*.html
 frontend/dump_*.js
 frontend/debug_browser.js
+
+# Root project files to ignore
+/project_report.tex
+/video_script.md
+/package.json
+/package-lock.json
