@@ -177,7 +177,7 @@ app.post('/api/chats/:id/message', authMiddleware, async (req, res) => {
             model: m,
             messages: apiMessages,
             stream: true,
-          }, { timeout: 8000, maxRetries: 0 });
+          }, { timeout: 4000, maxRetries: 0 });
           successfulModel = m;
           break; // Connection succeeded!
        } catch (apiErr) {
